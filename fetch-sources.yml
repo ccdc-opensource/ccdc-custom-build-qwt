@@ -1,3 +1,4 @@
+steps:
 - task: ArtifactoryGenericDownload@3
   inputs:
     connection: 'devops-ccdc-3rd-party'
