@@ -85,7 +85,7 @@ jobs:
       - script: |
           cd $(Build.SourcesDirectory)
           call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\VC\\Auxiliary\\Build\\vcvars64.bat"
-          python3 build_qwt.py
+          python build_qwt.py
         displayName: 'install qwt'
 
       - template: common-tasks.yml
