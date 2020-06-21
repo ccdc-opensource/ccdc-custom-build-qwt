@@ -59,7 +59,7 @@ jobs:
     steps:
       - task: CmdLine@2
         inputs:
-          script: "sudo brew install gnu-tar"
+          script: "brew install gnu-tar"
         displayName: "install gnu-tar"
       - task: UsePythonVersion@0
         inputs:
