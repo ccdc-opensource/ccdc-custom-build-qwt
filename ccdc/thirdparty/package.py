@@ -217,6 +217,8 @@ class Package(object):
         if '.zip' in path.suffixes:
             self.system(['unzip', '-q', '-o', str(path)], cwd=where)
             return
+        if '.7z' in path.suffixes:
+            self.system(['7z', 'x', '-aoa', f'-o{where}', f'{path}'])
         if '.bz2' in path.suffixes:
             flags = ['jxf']
         elif '.gz' in path.suffixes:
