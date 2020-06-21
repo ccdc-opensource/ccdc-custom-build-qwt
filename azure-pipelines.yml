@@ -57,6 +57,10 @@ jobs:
       qt_archive_suffix: mac.tar.zst
       downloads_folder: /opt/ccdc/third-party-sources/downloads/
     steps:
+      - task: CmdLine@2
+        inputs:
+          script: "sudo brew install gnu-tar"
+        displayName: "install gnu-tar"
       - task: UsePythonVersion@0
         inputs:
           versionSpec: "3.8"

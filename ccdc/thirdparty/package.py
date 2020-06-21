@@ -244,8 +244,10 @@ class Package(object):
                              flags + [str(path)], cwd=where)
             except subprocess.CalledProcessError:
                 self.system(['tar'] + flags + [str(path)], cwd=where)
-        else:
+        elif self.linux:
             self.system(['tar'] + flags + [str(path)], cwd=where)
+        elif self.macos:
+            self.system(['gtar'] + flags + [str(path)], cwd=where)
 
     def patch_sources(self):
         '''Override to patch source code after extraction'''
