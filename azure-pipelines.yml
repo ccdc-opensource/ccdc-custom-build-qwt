@@ -15,11 +15,11 @@ jobs:
     steps:
       - task: CmdLine@2
         inputs:
-          script: "yum install -y epel-release"
+          script: "sudo yum install -y epel-release"
         displayName: "install epel"
       - task: CmdLine@2
         inputs:
-          script: "yum install -y zstd unzip mesa-libGL-devel"
+          script: "sudo yum install -y zstd unzip mesa-libGL-devel"
         displayName: "install zstd, unzip, libGL"
       - task: ArtifactoryGenericDownload@3
         inputs:
@@ -49,6 +49,10 @@ jobs:
       artifactory.library_repo: ccdc-3rdparty-macos-libraries
       qt_archive_suffix: mac.tar.zst
     steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: "3.8"
+        displayName: "Use latest python 3.8"
       - task: ArtifactoryGenericDownload@3
         inputs:
           connection: 'devops-ccdc-3rd-party'
