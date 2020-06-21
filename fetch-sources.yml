@@ -7,6 +7,22 @@ steps:
       {
         "files": [
           {
+            "pattern": "ccdc-3rd-party-sources/.qt-license",
+            "target": "$(System.ArtifactsDirectory)/"
+          }
+        ]
+      }
+    replaceSpecVars: true
+    failNoOp: true
+  displayName: "Download .qt-license"
+- task: ArtifactoryGenericDownload@3
+  inputs:
+    connection: 'devops-ccdc-3rd-party'
+    specSource: 'taskConfiguration'
+    fileSpec: |
+      {
+        "files": [
+          {
             "pattern": "ccdc-3rd-party-sources/qwt-$(qwt_version).zip",
             "target": "$(System.ArtifactsDirectory)/"
           }

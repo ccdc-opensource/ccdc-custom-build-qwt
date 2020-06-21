@@ -22,22 +22,6 @@ jobs:
         inputs:
           script: "sudo yum install -y zstd unzip mesa-libGL-devel"
         displayName: "install zstd, unzip, libGL"
-      - task: ArtifactoryGenericDownload@3
-        inputs:
-          connection: 'devops-ccdc-3rd-party'
-          specSource: 'taskConfiguration'
-          fileSpec: |
-            {
-              "files": [
-                {
-                  "pattern": "ccdc-3rd-party-sources/.qt-license",
-                  "target": "$(HomePath)/"
-                }
-              ]
-            }
-          replaceSpecVars: true
-          failNoOp: true
-        displayName: "Download .qt-license"
       - template: fetch-sources.yml
       # No need to setup specific python, the container's python3 will be used
       # Build using whatever the parent task provides us
@@ -65,22 +49,6 @@ jobs:
         inputs:
           versionSpec: "3.8"
         displayName: "Use latest python 3.8"
-      - task: ArtifactoryGenericDownload@3
-        inputs:
-          connection: 'devops-ccdc-3rd-party'
-          specSource: 'taskConfiguration'
-          fileSpec: |
-            {
-              "files": [
-                {
-                  "pattern": "ccdc-3rd-party-sources/.qt-license",
-                  "target": "$(HomePath)/"
-                }
-              ]
-            }
-          replaceSpecVars: true
-          failNoOp: true
-        displayName: "Download .qt-license"
       - template: fetch-sources.yml        
       # No need to setup specific python, the container's python3 will be used
       # Build using whatever the parent task provides us
@@ -101,22 +69,6 @@ jobs:
       qt_archive_suffix: msvc2017_64.7z
       downloads_folder: /opt/ccdc/third-party-sources/downloads/
     steps:
-      - task: ArtifactoryGenericDownload@3
-        inputs:
-          connection: 'devops-ccdc-3rd-party'
-          specSource: 'taskConfiguration'
-          fileSpec: |
-            {
-              "files": [
-                {
-                  "pattern": "ccdc-3rd-party-sources/.qt-license",
-                  "target": "$(UserProfile)/"
-                }
-              ]
-            }
-          replaceSpecVars: true
-          failNoOp: true
-        displayName: "Download .qt-license"
       - template: fetch-sources.yml        
         
       - task: CmdLine@2
