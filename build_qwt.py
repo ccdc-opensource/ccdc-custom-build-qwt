@@ -36,6 +36,7 @@ class QwtPackage(GnuMakeMixin, MakeInstallMixin, Package):
         with open(self.main_source_directory_path / 'qwtconfig.pri') as f:
             t = f.read()
         t = t.replace('/usr/local/qwt-$$QWT_VERSION', str(self.install_directory))
+        t = t.replace('C:/Qwt-$$QWT_VERSION', str(self.install_directory))
         t += """
 QMAKE_CXXFLAGS += $$(CXXFLAGS)
 QMAKE_CFLAGS += $$(CFLAGS)
