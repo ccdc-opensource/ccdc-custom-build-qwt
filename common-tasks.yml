@@ -1,0 +1,60 @@
+steps:
+# Build using whatever the parent task provides us
+- task: PythonScript@0
+  inputs:
+    scriptSource: 'filePath'
+    scriptPath: build_qwt.py
+  displayName: 'install qwt'
+
+# Upload artifactory build info
+- task: ArtifactoryCollectIssues@1
+  inputs:
+    artifactoryService: 'devops-ccdc-3rd-party'
+    configSource: 'taskConfiguration'
+    taskConfig: |
+      version: 1
+      issues:
+        trackerName: JIRA
+        regexp: '(.*?)\b\(?(Jira|JIRA|jira)?\s+([A-Za-z]{2,5}\d*-\d+)\)?'
+        keyGroupIndex: 3
+        summaryGroupIndex: 1
+        trackerUrl: https://jira.ccdc.cam.ac.uk/issues
+        aggregate: true
+        aggregationStatus: RELEASED
+    buildName: '$(Build.DefinitionName)'
+    buildNumber: '$(Build.BuildNumber)-$(artifactory.platformName)'
+  displayName: 'Collect issues'
+
+- task: ArtifactoryGenericUpload@2
+  inputs:
+    artifactoryService: 'devops-ccdc-3rd-party'
+    specSource: 'taskConfiguration'
+    fileSpec: |
+      {
+        "files": [
+          {
+            "pattern": "$(Build.ArtifactStagingDirectory)/qwt*",
+            "target": "$(artifactory.library_repo)"
+          }
+        ]
+      }
+    replaceSpecVars: true
+    collectBuildInfo: true
+    buildName: '$(Build.DefinitionName)'
+    buildNumber: '$(Build.BuildNumber)-$(artifactory.platformName)'
+    module: 'qwt/$(artifactory.platformName)'
+    includeEnvVars: true
+    failNoOp: true
+  env:
+    JFROG_CLI_TEMP_DIR: '$(Build.ArtifactStagingDirectory)'
+  displayName: 'Upload distribution to artifactory'
+
+- task: ArtifactoryPublishBuildInfo@1
+  inputs:
+    artifactoryService: 'devops-ccdc-3rd-party'
+    buildName: '$(Build.DefinitionName)'
+    buildNumber: '$(Build.BuildNumber)-$(artifactory.platformName)'
+    excludeEnvVars: '*password*;*secret*;*key*;*token*;CL_USER;CL_PASSWORD'
+  env:
+    JFROG_CLI_TEMP_DIR: '$(Build.ArtifactStagingDirectory)'
+  displayName: 'Publish build'

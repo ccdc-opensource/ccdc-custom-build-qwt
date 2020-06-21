@@ -1,0 +1,32 @@
+- task: ArtifactoryGenericDownload@3
+  inputs:
+    connection: 'devops-ccdc-3rd-party'
+    specSource: 'taskConfiguration'
+    fileSpec: |
+      {
+        "files": [
+          {
+            "pattern": "ccdc-3rd-party-sources/qwt-$(qwt_version).zip",
+            "target": "$(System.ArtifactsDirectory)/"
+          }
+        ]
+      }
+    replaceSpecVars: true
+    failNoOp: true
+  displayName: "Download qwt $(qwt_version) from artifactory"
+- task: ArtifactoryGenericDownload@3
+  inputs:
+    connection: 'devops-ccdc-3rd-party'
+    specSource: 'taskConfiguration'
+    fileSpec: |
+      {
+        "files": [
+          {
+            "pattern": "$(artifactory.library_repo)/qt-$(qt_build)-$(qt_archive_suffix)",
+            "target": "$(System.ArtifactsDirectory)/"
+          }
+        ]
+      }
+    replaceSpecVars: true
+    failNoOp: true
+  displayName: "Download qt $(qt_build) from artifactory"

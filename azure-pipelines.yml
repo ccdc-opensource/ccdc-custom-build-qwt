@@ -1,0 +1,109 @@
+variables:
+  qwt_version: 6.1.5
+  qt_build: 5.12.8-01
+
+jobs:
+  - job: Centos7
+    pool:
+      vmImage: "ubuntu-latest"
+    # We use a container to run the build as we must be compatible with centos7's older glibc
+    container: rockdreamer/centos7-gcc9:latest
+    variables:
+      artifactory.platformName: "centos7"
+      artifactory.library_repo: ccdc-3rd-party-centos-7-builds
+      qt_archive_suffix: linux.tar.zst
+    steps:
+      - task: CmdLine@2
+        inputs:
+          script: "yum install -y epel-release"
+        displayName: "install epel"
+      - task: CmdLine@2
+        inputs:
+          script: "yum install -y zstd unzip mesa-libGL-devel"
+        displayName: "install zstd, unzip, libGL"
+      - task: ArtifactoryGenericDownload@3
+        inputs:
+          connection: 'devops-ccdc-3rd-party'
+          specSource: 'taskConfiguration'
+          fileSpec: |
+            {
+              "files": [
+                {
+                  "pattern": "ccdc-3rd-party-sources/.qt-license",
+                  "target": "$(HomePath)/"
+                }
+              ]
+            }
+          replaceSpecVars: true
+          failNoOp: true
+        displayName: "Download .qt-license"
+      - template: fetch-sources.yml        
+      # No need to setup specific python, the container's python3 will be used
+      - template: common-tasks.yml
+
+  - job: macOS
+    pool:
+      vmImage: "macOS-latest"
+    variables:
+      artifactory.platformName: "darwin"
+      artifactory.library_repo: ccdc-3rdparty-macos-libraries
+      qt_archive_suffix: mac.tar.zst
+    steps:
+      - task: ArtifactoryGenericDownload@3
+        inputs:
+          connection: 'devops-ccdc-3rd-party'
+          specSource: 'taskConfiguration'
+          fileSpec: |
+            {
+              "files": [
+                {
+                  "pattern": "ccdc-3rd-party-sources/.qt-license",
+                  "target": "$(HomePath)/"
+                }
+              ]
+            }
+          replaceSpecVars: true
+          failNoOp: true
+        displayName: "Download .qt-license"
+      - template: fetch-sources.yml        
+      # No need to setup specific python, the container's python3 will be used
+      - template: common-tasks.yml
+
+  - job: WindowsVS2017
+    pool:
+      vmImage: "vs2017-win2016"
+    variables:
+      build_vs_version: "2017"
+      artifactory.platformName: "windows"
+      artifactory.library_repo: ccdc-3rdparty-windows-libraries
+      qt_archive_suffix: msvc2017_64.7z
+    steps:
+      - task: ArtifactoryGenericDownload@3
+        inputs:
+          connection: 'devops-ccdc-3rd-party'
+          specSource: 'taskConfiguration'
+          fileSpec: |
+            {
+              "files": [
+                {
+                  "pattern": "ccdc-3rd-party-sources/.qt-license",
+                  "target": "$(UserProfile)/"
+                }
+              ]
+            }
+          replaceSpecVars: true
+          failNoOp: true
+        displayName: "Download .qt-license"
+      - template: fetch-sources.yml        
+        
+      - task: CmdLine@2
+        inputs:
+          script: "tree $(System.ArtifactsDirectory) /f"
+        displayName: "Contents of ArtifactsDirectory"
+
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: "3.8"
+        displayName: "Use latest python 3.8"
+
+      - template: common-tasks.yml
