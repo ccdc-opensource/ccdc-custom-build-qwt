@@ -12,6 +12,7 @@ jobs:
       artifactory.platformName: "centos7"
       artifactory.library_repo: ccdc-3rd-party-centos-7-builds
       qt_archive_suffix: linux.tar.zst
+      downloads_folder: /opt/ccdc/third-party-sources/downloads/
     steps:
       - task: CmdLine@2
         inputs:
@@ -37,8 +38,14 @@ jobs:
           replaceSpecVars: true
           failNoOp: true
         displayName: "Download .qt-license"
-      - template: fetch-sources.yml        
+      - template: fetch-sources.yml
       # No need to setup specific python, the container's python3 will be used
+      # Build using whatever the parent task provides us
+      - task: PythonScript@0
+        inputs:
+          scriptSource: 'filePath'
+          scriptPath: build_qwt.py
+        displayName: 'install qwt'
       - template: common-tasks.yml
 
   - job: macOS
@@ -48,6 +55,7 @@ jobs:
       artifactory.platformName: "darwin"
       artifactory.library_repo: ccdc-3rdparty-macos-libraries
       qt_archive_suffix: mac.tar.zst
+      downloads_folder: /opt/ccdc/third-party-sources/downloads/
     steps:
       - task: UsePythonVersion@0
         inputs:
@@ -71,6 +79,12 @@ jobs:
         displayName: "Download .qt-license"
       - template: fetch-sources.yml        
       # No need to setup specific python, the container's python3 will be used
+      # Build using whatever the parent task provides us
+      - task: PythonScript@0
+        inputs:
+          scriptSource: 'filePath'
+          scriptPath: build_qwt.py
+        displayName: 'install qwt'
       - template: common-tasks.yml
 
   - job: WindowsVS2017
@@ -81,6 +95,7 @@ jobs:
       artifactory.platformName: "windows"
       artifactory.library_repo: ccdc-3rdparty-windows-libraries
       qt_archive_suffix: msvc2017_64.7z
+      downloads_folder: /opt/ccdc/third-party-sources/downloads/
     steps:
       - task: ArtifactoryGenericDownload@3
         inputs:
@@ -109,5 +124,12 @@ jobs:
         inputs:
           versionSpec: "3.8"
         displayName: "Use latest python 3.8"
+
+      # Build using whatever the parent task provides us
+      - script: |
+          cd $(Build.SourcesDirectory)
+          call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\VC\\Auxiliary\\Build\\vcvars64.bat"
+          python3 build_qwt.py
+        displayName: 'install qwt'
 
       - template: common-tasks.yml
