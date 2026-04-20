@@ -101,9 +101,9 @@ class Package(object):
     @property
     def source_downloads_base(self):
         '''Return the directory where sources are downloaded'''
+        if 'SYSTEM_ARTIFACTSDIRECTORY' in os.environ:
+            return Path(os.environ['SYSTEM_ARTIFACTSDIRECTORY'])
         if self.windows:
-            if 'SYSTEM_ARTIFACTSDIRECTORY' in os.environ:
-                return Path(os.environ['SYSTEM_ARTIFACTSDIRECTORY'])
             return Path('D:\\tp\\downloads')
         else:
             return Path('/opt/ccdc/third-party-sources/downloads')
@@ -217,6 +217,13 @@ class Package(object):
         if '.zip' in path.suffixes:
             self.system(['unzip', '-q', '-o', str(path)], cwd=where)
             return
+        if '.7z' in path.suffixes:
+            if self.windows:
+                self.system(['7z', 'x', '-aoa', f'-o{where}', f'{path}'])
+                return
+            else:
+                self.system(['7za', 'x', '-aoa', f'-o{where}', f'{path}'])
+                return
         if '.bz2' in path.suffixes:
             flags = ['jxf']
         elif '.gz' in path.suffixes:
@@ -237,8 +244,10 @@ class Package(object):
                              flags + [str(path)], cwd=where)
             except subprocess.CalledProcessError:
                 self.system(['tar'] + flags + [str(path)], cwd=where)
-        else:
+        elif self.linux:
             self.system(['tar'] + flags + [str(path)], cwd=where)
+        elif self.macos:
+            self.system(['gtar'] + flags + [str(path)], cwd=where)
 
     def patch_sources(self):
         '''Override to patch source code after extraction'''
