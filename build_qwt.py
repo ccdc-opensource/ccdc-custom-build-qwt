@@ -36,6 +36,7 @@ class QwtPackage(GnuMakeMixin, MakeInstallMixin, Package):
         with open(self.main_source_directory_path / 'qwtconfig.pri') as f:
             t = f.read()
         t = t.replace('/usr/local/qwt-$$QWT_VERSION', str(self.install_directory))
+        t = t.replace('C:/Qwt-$$QWT_VERSION', str(self.install_directory))
         t += """
 QMAKE_CXXFLAGS += $$(CXXFLAGS)
 QMAKE_CFLAGS += $$(CFLAGS)
@@ -64,10 +65,27 @@ QMAKE_LFLAGS += $$(LDFLAGS)
         return flags
 
     @property
-    def environment_for_build_command(self):
-        e = self.environment_for_configuration_script
+    def environment_for_configuration_script(self):
+        e = super().environment_for_configuration_script
         e['VERBOSE']='1'
+        e['QT_LICENSE_FILE']= str(self.source_downloads_base / '.qt-license')
         return e
+
+    def run_build_command(self):
+        if self.windows:
+            self.system(['nmake',],
+                        env=self.environment_for_build_command, cwd=self.build_directory_path)
+        else:
+            self.system(['make', f'-j{multiprocessing.cpu_count()}'],
+                        env=self.environment_for_build_command, cwd=self.build_directory_path)
+
+    def run_install_command(self):
+        if self.windows:
+            self.system(['nmake', 'install'],
+                        env=self.environment_for_build_command, cwd=self.build_directory_path)
+        else:
+            self.system(['make', 'install'],
+                        env=self.environment_for_build_command, cwd=self.build_directory_path)
 
 def main():
     try:

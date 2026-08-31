@@ -1,11 +1,4 @@
 steps:
-# Build using whatever the parent task provides us
-- task: PythonScript@0
-  inputs:
-    scriptSource: 'filePath'
-    scriptPath: build_qwt.py
-  displayName: 'install qwt'
-
 # Upload artifactory build info
 - task: ArtifactoryCollectIssues@1
   inputs:
